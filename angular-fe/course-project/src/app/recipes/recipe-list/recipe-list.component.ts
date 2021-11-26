@@ -11,17 +11,24 @@ import {Subscription} from "rxjs";
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
-  subscription: Subscription;
+  errorMessage: string = '';
+  recipesSubscription: Subscription;
+  errorMessageSubscription: Subscription;
 
   constructor(private recipeService: RecipeService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.subscription = this.recipeService.recipesChanged.subscribe(
+    this.recipesSubscription = this.recipeService.recipesChanged.subscribe(
       (recipes: Recipe[]) => {
         this.recipes = recipes;
       }
     );
     this.recipes = this.recipeService.getRecipes();
+    this.errorMessageSubscription = this.recipeService.errorMessage.subscribe(
+      (error: string) => {
+        this.errorMessage = error;
+      }
+    );
   }
 
   onNewRecipe(){
@@ -29,7 +36,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.recipesSubscription.unsubscribe();
+    this.errorMessageSubscription.unsubscribe();
   }
 
 }
