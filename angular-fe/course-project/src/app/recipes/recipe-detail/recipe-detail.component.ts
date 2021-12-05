@@ -23,7 +23,6 @@ export class RecipeDetailComponent implements OnInit {
     )
   }
 
-
   onAddToShoppingList(){
     this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients);
   }
@@ -33,8 +32,19 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDeleteRecipe(){
-    this.recipeService.deleteRecipe(this.id);
-    this.router.navigate(['/recipes'])
+    try{
+      const recipe = this.recipeService.getRecipe(this.id);
+      this.recipeService.deleteRecipe(recipe._id).subscribe(() => {
+        const updateValue = this.recipeService.recipes.value;
+        updateValue.splice(this.id,1);
+        this.recipeService.recipes.next(updateValue);
+      }, (error) => {
+        this.recipeService.errorMessage.next(error.error);
+      })
+    } catch (error) {
+      this.recipeService.errorMessage.next('Unknown error');
+    }
+    this.router.navigate(['/'])
   }
 
 }

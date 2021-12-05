@@ -9,18 +9,12 @@ export class RecipeValidator{
         let error = ''
         if( !recipe.name ){
             error += 'Recipe name must be included!'
-        } else if (recipe.name.length === 0){
-            error += 'Recipe name cannot be empty!'
         }
         if( !recipe.description ){
             error += 'Recipe description must be included!'
-        } else if ( recipe.description.length === 0 ){
-            error += 'Recipe description cannot be empty!'
         }
         if ( !recipe.imagePath ){
             error += 'Image path must be included!'
-        } else if( recipe.imagePath.length === 0) {
-            error += 'Image path cannot be empty!'
         }
         if ( !recipe.ingredients ){
             error += 'Ingredients must be included!'
@@ -30,7 +24,8 @@ export class RecipeValidator{
                 error += ingredientError;
             }
         }
-        console.log(error);
-        return error;
+        if(error){
+            throw(error);
+        }
     }
 }

@@ -56,11 +56,33 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onSubmit(){
+    const recipe = this.recipeService.getRecipe(this.id);
     const newRecipe = new Recipe(this.recipeForm.value['name'],this.recipeForm.value['description'],this.recipeForm.value['imagePath'],this.recipeForm.value['ingredients']);
     if(this.editMode){
-      this.recipeService.updateRecipe(this.id,newRecipe);
+      try{
+        this.recipeService.updateRecipe(recipe._id,newRecipe).subscribe(() => {
+          const updatedValue = this.recipeService.recipes.value;
+          updatedValue[this.id] = newRecipe;
+          this.recipeService.recipes.next(updatedValue);
+        },(error:any) => {
+          this.recipeService.errorMessage.next(error.error);
+        });
+      } catch (error){
+        this.recipeService.errorMessage.next('Unknown error');
+      }
     } else {
-      this.recipeService.addRecipe(newRecipe);
+      try {
+        // @ts-ignore
+        this.recipeService.addRecipe(newRecipe).subscribe((savedRecipe:Recipe) => {
+          const currentValue = this.recipeService.recipes.value;
+          const updatedValue = [...currentValue, savedRecipe];
+          this.recipeService.recipes.next(updatedValue);
+        }, (error:any) => {
+          this.recipeService.errorMessage.next(error.error);
+        });
+      }catch (error){
+        this.recipeService.errorMessage.next('Unknown error');
+      }
     }
     this.onCancel();
   }

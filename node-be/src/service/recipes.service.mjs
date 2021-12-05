@@ -1,44 +1,35 @@
 import {RecipeValidator} from "../validator/recipe.validator.mjs";
+import Recipe from "../models/recipe.mjs";
 
-export class RecipeService{
-    constructor(){
+export class RecipeService {
+    constructor() {
         this.ingredients = []
         this.recipes = []
         this.recipeValidator = new RecipeValidator()
     }
 
-    saveRecipe(recipe){
-        var msg = this.recipeValidator.validate(recipe);
-        if (msg.length === 0){
-            this.recipes.push(recipe);
-        }
-        return msg;
+    saveRecipe(recipeData) {
+        const recipe = new Recipe(recipeData);
+        return recipe.save();
     }
 
-    getRecipes(){
-        return this.recipes.slice();
+    getRecipes() {
+        return Recipe.find({});
     }
 
-    deleteRecipe(index){
-        var msg = ''
-        if(typeof this.recipes[index] === 'undefined'){
-            msg = 'Provided index does not exist!'
+    deleteRecipe(id) {
+        return Recipe.findByIdAndDelete(id);
+    }
+
+    updateRecipe(id, newRecipe) {
+        const updates = Object.keys(newRecipe)
+        const allowedUpdates = ['name', 'description', 'imagePath', 'ingredients']
+        const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+        if (!isValidOperation) {
+            throw new Error('Invalid updates!');
         } else {
-            this.recipes.splice(index,1);
+            return Recipe.findByIdAndUpdate(id, newRecipe, {new: true, runValidators: true})
         }
-        return msg;
-    }
-
-    updateRecipe(index,newRecipe){
-        var msg = this.recipeValidator.validate(newRecipe);
-        if (msg.length === 0){
-            if (typeof this.recipes[index] === 'undefined'){
-                msg += 'Provided index does not exist!'
-            } else {
-                this.recipes[index] = newRecipe;
-            }
-        }
-        return msg;
     }
 }
 

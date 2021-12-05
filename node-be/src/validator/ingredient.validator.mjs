@@ -3,26 +3,23 @@ export class IngredientValidator {
     }
 
     validateIngredients(ingredients){
-        let error = '';
         for(const key in ingredients) {
-            error = this.validate(ingredients[key]);
-            if(error.length !== 0){
+            let error = this.validate(ingredients[key]);
+            if(error){
                 return error;
             }
         }
-        return error;
+        return '';
     }
 
     validate(ingredient){
         let error = ''
         if( !ingredient.name ){
             error += 'Recipe name must be included!'
-        } else if (ingredient.name.length === 0){
-            error += 'Recipe name cannot be empty!'
         }
-        if( !ingredient.amount ){
+        if( !ingredient.amount){
             error += 'Recipe amount must be included!'
-        } else if (ingredient.amount<=0){
+        } else if (isNaN(ingredient.amount) || ingredient.amount<=1){
             error += 'Recipe amount must be a positive number!'
         }
         return error;
