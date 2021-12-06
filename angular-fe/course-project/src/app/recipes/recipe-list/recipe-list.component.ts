@@ -4,6 +4,7 @@ import {RecipeService} from "../recipe.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {FormControl, FormGroup} from "@angular/forms";
+import {Options} from "@angular-slider/ngx-slider";
 
 @Component({
   selector: 'app-recipe-list',
@@ -16,6 +17,13 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   recipesSubscription: Subscription;
   errorMessageSubscription: Subscription;
   searchForm: FormGroup;
+  sliderForm: FormGroup;
+  value: number = 0;
+  highValue: number = 10;
+  options: Options = {
+    floor: 0,
+    ceil: 10
+  };
 
   constructor(private recipeService: RecipeService, private router: Router, private route: ActivatedRoute) { }
 
@@ -43,10 +51,23 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.searchForm = new FormGroup({
       'search_field': new FormControl(searchInput)
     })
+    this.sliderForm = new FormGroup({
+      'slider': new FormControl([0,10])
+    })
   }
 
   onSearch(){
-    this.recipeService.fetchRecipes(this.searchForm.value['search_field']).subscribe();
+    const options = {
+      search : this.searchForm.value['search_field']
+    }
+    this.recipeService.fetchRecipes(options).subscribe();
+  }
+
+  onSliderSubmit(){
+    const options = {
+      range : this.sliderForm.value['slider']
+    }
+    this.recipeService.fetchRecipes(options).subscribe();
   }
 
   ngOnDestroy() {

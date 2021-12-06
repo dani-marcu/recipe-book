@@ -13,7 +13,6 @@ recipesRouter.route('/api/recipes').get(async (req, res) => {
     } catch (error) {
         res.status(500).send(error.message);
     }
-
 })
 
 recipesRouter.route('/api/recipes').post(async (req, res) => {

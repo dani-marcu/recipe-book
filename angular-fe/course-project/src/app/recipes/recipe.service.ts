@@ -42,10 +42,15 @@ export class RecipeService {
     this.recipes.next(recipes);
   }
 
-  fetchRecipes(search) {
+  fetchRecipes(options) {
     let url = 'http://localhost:3005/api/recipes';
-    if (search){
-      url += '?search=' + encodeURI(search);
+    if (options){
+      if(options.search){
+        url += '?search=' + encodeURI(options.search);
+      }
+      if(options.range){
+        url += '?min=' + encodeURI(options.range[0]) + '&max=' + encodeURI(options.range[1]);
+      }
     }
     return this.http.get<Recipe[]>(url).pipe(
       map(recipes => {

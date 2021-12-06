@@ -20,6 +20,7 @@ import { PropagationListItemComponent } from './recipes/propagation-list/propaga
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {RecipeService} from "./recipes/recipe.service";
 import {HttpClientModule} from "@angular/common/http";
+import {NgxSliderModule} from "@angular-slider/ngx-slider";
 
 
 @NgModule({
@@ -44,7 +45,8 @@ import {HttpClientModule} from "@angular/common/http";
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgxSliderModule
   ],
   providers: [ShoppingListService, RecipeService],
   bootstrap: [AppComponent]

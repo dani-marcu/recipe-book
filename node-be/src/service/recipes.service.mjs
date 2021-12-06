@@ -13,9 +13,14 @@ export class RecipeService {
         return recipe.save();
     }
 
-    getRecipes(query) {
-        if(query.search){
+    async getRecipes(query) {
+        if (query.search) {
             return Recipe.fuzzySearch(query.search);
+        }
+        if (query.min && query.max && !isNaN(query.min) && !isNaN(query.max)) {
+            return Recipe.find(
+                {$where: "this.ingredients.length >= " + query.min + " && this.ingredients.length <= " + query.max}
+            )
         }
         return Recipe.find({});
     }

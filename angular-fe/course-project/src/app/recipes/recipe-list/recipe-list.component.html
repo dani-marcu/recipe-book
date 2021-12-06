@@ -15,6 +15,15 @@
 <hr>
 <div class="row">
   <div class="col-xs-12">
+    <form [formGroup]="sliderForm" (ngSubmit)="onSliderSubmit()">
+      <ngx-slider [(value)]="value" [(highValue)]="highValue" [options]="options" formControlName="slider"></ngx-slider>
+      <button id="slider_button" class="btn btn-success" type="submit">Number of ingredients</button>
+    </form>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
     <app-recipe-item *ngFor="let recipeEl of recipes; let i = index" [recipe]="recipeEl" [index]="i"></app-recipe-item>
     <div *ngIf="errorMessage.length !== 0" style="margin-top: 15px; border: 1px solid red; text-align: center">
         <h2>Error occurred</h2>
