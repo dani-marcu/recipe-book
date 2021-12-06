@@ -6,6 +6,15 @@
 <hr>
 <div class="row">
   <div class="col-xs-12">
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <input type="text" id="search_field" class="form-control" formControlName="search_field" placeholder="search recipe">
+      <button id="search_button" class="btn btn-success" type="submit">Search</button>
+    </form>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
     <app-recipe-item *ngFor="let recipeEl of recipes; let i = index" [recipe]="recipeEl" [index]="i"></app-recipe-item>
     <div *ngIf="errorMessage.length !== 0" style="margin-top: 15px; border: 1px solid red; text-align: center">
         <h2>Error occurred</h2>

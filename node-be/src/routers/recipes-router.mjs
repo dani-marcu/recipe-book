@@ -8,7 +8,7 @@ const recipesRouter = new express.Router()
 
 recipesRouter.route('/api/recipes').get(async (req, res) => {
     try {
-        const recipes = await recipeService.getRecipes();
+        const recipes = await recipeService.getRecipes(req.query);
         res.status(200).send(recipes);
     } catch (error) {
         res.status(500).send(error.message);

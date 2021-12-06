@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
+import mongoose_fuzzy_searching from 'mongoose-fuzzy-searching';
 
-const Recipe = mongoose.model('Recipe', {
+const RecipeSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -40,6 +41,8 @@ const Recipe = mongoose.model('Recipe', {
             }
         }
     ]
-})
+});
 
+RecipeSchema.plugin(mongoose_fuzzy_searching,{fields: ['name']});
+const Recipe = mongoose.model('Recipe',RecipeSchema);
 export {Recipe as default}

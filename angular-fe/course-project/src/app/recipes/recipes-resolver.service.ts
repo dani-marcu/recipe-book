@@ -10,7 +10,7 @@ export class RecipesResolverService implements Resolve<Recipe[]>{
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
     const recipes = this.recipesService.getRecipes();
     if(recipes.length === 0) {
-      return this.recipesService.fetchRecipes();
+      return this.recipesService.fetchRecipes(null);
     } else {
       return recipes;
     }

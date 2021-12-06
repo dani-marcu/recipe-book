@@ -42,8 +42,12 @@ export class RecipeService {
     this.recipes.next(recipes);
   }
 
-  fetchRecipes() {
-    return this.http.get<Recipe[]>('http://localhost:3005/api/recipes').pipe(
+  fetchRecipes(search) {
+    let url = 'http://localhost:3005/api/recipes';
+    if (search){
+      url += '?search=' + encodeURI(search);
+    }
+    return this.http.get<Recipe[]>(url).pipe(
       map(recipes => {
         return recipes.map(recipe => {
           return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : []};
@@ -54,4 +58,5 @@ export class RecipeService {
       })
     )
   }
+
 }

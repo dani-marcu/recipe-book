@@ -13,7 +13,10 @@ export class RecipeService {
         return recipe.save();
     }
 
-    getRecipes() {
+    getRecipes(query) {
+        if(query.search){
+            return Recipe.fuzzySearch(query.search);
+        }
         return Recipe.find({});
     }
 
