@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-xs-12">
-    <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
+    <form *ngIf="recipeForm" [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
       <div class="row">
         <div class="col-xs-12">
           <button type="submit" class="btn btn-success" [disabled]="!recipeForm.valid">Save</button>

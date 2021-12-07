@@ -14,12 +14,17 @@ export class RecipeService {
     }
 
     async getRecipes(query) {
+        if (query.search && query.minIngredients && query.maxIngredients && !isNaN(query.minIngredients) && !isNaN(query.maxIngredients)){
+            return Recipe.find(
+                {$where: "this.ingredients.length >= " + query.minIngredients + " && this.ingredients.length <= " + query.maxIngredients}
+            ).fuzzySearch(query.search);
+        }
         if (query.search) {
             return Recipe.fuzzySearch(query.search);
         }
-        if (query.min && query.max && !isNaN(query.min) && !isNaN(query.max)) {
+        if (query.minIngredients && query.maxIngredients && !isNaN(query.minIngredients) && !isNaN(query.maxIngredients)) {
             return Recipe.find(
-                {$where: "this.ingredients.length >= " + query.min + " && this.ingredients.length <= " + query.max}
+                {$where: "this.ingredients.length >= " + query.minIngredients + " && this.ingredients.length <= " + query.maxIngredients}
             )
         }
         return Recipe.find({});

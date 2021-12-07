@@ -3,7 +3,9 @@ import cors from 'cors';
 
 const app = express();
 import recipesRouter from "./routers/recipes-router.mjs";
-import './db/mongoose.mjs'
+import {connectToDb} from "./db/mongoose.mjs";
+
+connectToDb();
 
 app.use(cors());
 app.use(express.json());

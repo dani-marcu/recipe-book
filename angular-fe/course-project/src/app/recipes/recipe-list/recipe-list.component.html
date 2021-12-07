@@ -7,17 +7,9 @@
 <div class="row">
   <div class="col-xs-12">
     <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
-      <input type="text" id="search_field" class="form-control" formControlName="search_field" placeholder="search recipe">
-      <button id="search_button" class="btn btn-success" type="submit">Search</button>
-    </form>
-  </div>
-</div>
-<hr>
-<div class="row">
-  <div class="col-xs-12">
-    <form [formGroup]="sliderForm" (ngSubmit)="onSliderSubmit()">
-      <ngx-slider [(value)]="value" [(highValue)]="highValue" [options]="options" formControlName="slider"></ngx-slider>
-      <button id="slider_button" class="btn btn-success" type="submit">Number of ingredients</button>
+      <input type="text" id="searchField" class="form-control" formControlName="searchField" placeholder="search recipe">
+      <ngx-slider id="slider" [(value)]="sliderBottomValue" [(highValue)]="sliderTopValue" [options]="sliderOptions" formControlName="slider"></ngx-slider>
+      <button id="searchButton" class="btn btn-success" type="submit">Search</button>
     </form>
   </div>
 </div>
