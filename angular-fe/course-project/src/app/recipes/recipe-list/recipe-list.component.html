@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="col-xs-12">
+    <button class="btn btn-success" (click)="onNewRecipe()">New Recipe</button>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <input type="text" id="searchField" class="form-control" formControlName="searchField" placeholder="search recipe">
+      <ngx-slider id="slider" [(value)]="sliderBottomValue" [(highValue)]="sliderTopValue" [options]="sliderOptions" formControlName="slider"></ngx-slider>
+      <button id="searchButton" class="btn btn-success" type="submit">Search</button>
+    </form>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
+    <app-recipe-item *ngFor="let recipeEl of recipes; let i = index" [recipe]="recipeEl" [index]="recipeEl._id"></app-recipe-item>
+    <div *ngIf="errorMessage.length !== 0" style="margin-top: 15px; border: 1px solid red; text-align: center">
+        <h2>Error occurred</h2>
+        <p>{{errorMessage}}</p>
+    </div>
+  </div>
+</div>
+
