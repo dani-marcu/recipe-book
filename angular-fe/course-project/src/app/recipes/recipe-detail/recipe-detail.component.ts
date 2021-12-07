@@ -10,7 +10,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 })
 export class RecipeDetailComponent implements OnInit {
   recipe: Recipe;
-  id: number;
+  id: string;
 
   constructor(
     private recipeService: RecipeService,
@@ -34,8 +34,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDeleteRecipe() {
-    const recipe = this.recipeService.getRecipe(this.id);
-    this.recipeService.deleteRecipe(this.id, recipe._id).subscribe({
+    this.recipeService.deleteRecipe(this.id).subscribe({
       next: (response) => {
         console.log(response);
       },

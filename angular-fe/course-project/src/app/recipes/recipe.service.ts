@@ -1,5 +1,5 @@
 import { Recipe } from './recipe.model';
-import { Injectable, Injector } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Ingredient } from '../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
 import { BehaviorSubject, catchError, Observable, Subject } from 'rxjs';
@@ -24,8 +24,10 @@ export class RecipeService {
     this.slService.addIngredients(ingredients);
   }
 
-  getRecipe(index: number) {
-    return this.recipes.value[index];
+  getRecipe(id: string) {
+    return this.recipes.value.find((recipe) => {
+      return recipe._id === id;
+    });
   }
 
   addRecipe(recipe: Recipe): Observable<Recipe> {
@@ -44,13 +46,17 @@ export class RecipeService {
       );
   }
 
-  updateRecipe(index: number, id: string, newRecipe: Recipe) {
+  updateRecipe(id: string, newRecipe: Recipe) {
     return this.http
       .put<Recipe>(`http://localhost:3005/api/recipes/${id}`, newRecipe)
       .pipe(
         tap(() => {
           const updatedValue = this.recipes.value;
-          updatedValue[index] = newRecipe;
+          const recipeIndex = updatedValue.findIndex(
+            (recipe) => recipe._id === id
+          );
+          updatedValue[recipeIndex] = newRecipe;
+          updatedValue[recipeIndex]._id = id;
           this.recipes.next(updatedValue);
         }),
         catchError((error) => {
@@ -60,14 +66,16 @@ export class RecipeService {
       );
   }
 
-  deleteRecipe(index: number, id: string): Observable<Recipe> {
+  deleteRecipe(id: string): Observable<Recipe> {
     return this.http
       .delete<Recipe>(`http://localhost:3005/api/recipes/${id}`)
       .pipe(
         tap(() => {
-          const updateValue = this.recipes.value;
-          updateValue.splice(index, 1);
-          this.recipes.next(updateValue);
+          let updatedValue = this.recipes.value;
+          updatedValue = updatedValue.filter((recipe) => {
+            return recipe._id !== id;
+          });
+          this.recipes.next(updatedValue);
         }),
         catchError((error) => {
           this.errorMessage.next(error.error);

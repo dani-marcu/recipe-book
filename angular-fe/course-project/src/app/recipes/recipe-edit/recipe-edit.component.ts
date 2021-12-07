@@ -10,7 +10,7 @@ import { Recipe } from '../recipe.model';
   styleUrls: ['./recipe-edit.component.css'],
 })
 export class RecipeEditComponent implements OnInit {
-  id: number;
+  id: string;
   recipeForm: FormGroup;
 
   constructor(
@@ -21,7 +21,7 @@ export class RecipeEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe((params: Params) => {
-      this.id = +params['id'];
+      this.id = params['id'];
       this.initForm();
     });
   }
@@ -63,7 +63,6 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onSubmit() {
-    const recipe = this.recipeService.getRecipe(this.id);
     const newRecipe = new Recipe(
       this.recipeForm.value['name'],
       this.recipeForm.value['description'],
@@ -71,16 +70,14 @@ export class RecipeEditComponent implements OnInit {
       this.recipeForm.value['ingredients']
     );
     if (this.editMode) {
-      this.recipeService
-        .updateRecipe(this.id, recipe._id, newRecipe)
-        .subscribe({
-          next: (response) => {
-            console.log(response);
-          },
-          error: (error) => {
-            console.log(error);
-          },
-        });
+      this.recipeService.updateRecipe(this.id, newRecipe).subscribe({
+        next: (response) => {
+          console.log(response);
+        },
+        error: (error) => {
+          console.log(error);
+        },
+      });
     } else {
       this.recipeService.addRecipe(newRecipe).subscribe({
         next: (response) => {

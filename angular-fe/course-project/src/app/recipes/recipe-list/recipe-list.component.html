@@ -16,7 +16,7 @@
 <hr>
 <div class="row">
   <div class="col-xs-12">
-    <app-recipe-item *ngFor="let recipeEl of recipes; let i = index" [recipe]="recipeEl" [index]="i"></app-recipe-item>
+    <app-recipe-item *ngFor="let recipeEl of recipes; let i = index" [recipe]="recipeEl" [index]="recipeEl._id"></app-recipe-item>
     <div *ngIf="errorMessage.length !== 0" style="margin-top: 15px; border: 1px solid red; text-align: center">
         <h2>Error occurred</h2>
         <p>{{errorMessage}}</p>
