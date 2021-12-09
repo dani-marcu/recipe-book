@@ -1,5 +1,4 @@
 import express from "express";
-import Recipe from "../models/recipe.mjs";
 import {RecipeService} from "../service/recipes.service.mjs";
 
 const recipeService = new RecipeService();
