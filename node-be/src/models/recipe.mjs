@@ -13,15 +13,9 @@ const RecipeSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    imagePath: {
+    image: {
         type: String,
-        required: true,
-        trim: true,
-        validate(value) {
-            if (!validator.isURL(value)) {
-                throw new Error('Image path is invalid')
-            }
-        }
+        required: true
     },
     ingredients: [
         {

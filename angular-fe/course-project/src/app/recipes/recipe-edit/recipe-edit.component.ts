@@ -11,6 +11,8 @@ import { Recipe } from '../recipe.model';
 })
 export class RecipeEditComponent implements OnInit {
   id: string;
+  selectedFile: File;
+  selectedFileBase64: string;
   recipeForm: FormGroup;
 
   constructor(
@@ -32,14 +34,14 @@ export class RecipeEditComponent implements OnInit {
 
   private initForm() {
     let recipeName = '';
-    let recipeImagePath = '';
+    let recipeImageFile = '';
     let recipeDescription = '';
     let recipeIngredients = new FormArray([]);
     if (this.editMode) {
       const recipe = this.recipeService.getRecipe(this.id);
       recipeName = recipe.name;
-      recipeImagePath = recipe.imagePath;
       recipeDescription = recipe.description;
+      this.selectedFileBase64 = recipe.image;
       if (recipe['ingredients']) {
         for (let ingredient of recipe.ingredients) {
           recipeIngredients.push(
@@ -56,17 +58,30 @@ export class RecipeEditComponent implements OnInit {
     }
     this.recipeForm = new FormGroup({
       name: new FormControl(recipeName, Validators.required),
-      imagePath: new FormControl(recipeImagePath, Validators.required),
+      imageFile: new FormControl(recipeImageFile, Validators.required),
       description: new FormControl(recipeDescription, Validators.required),
       ingredients: recipeIngredients,
     });
   }
 
+  async onImageFileChange(event) {
+    this.selectedFile = event.target.files[0];
+    this.selectedFileBase64 = <string>await this.toBase64(this.selectedFile);
+  }
+
+  toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
   onSubmit() {
     const newRecipe = new Recipe(
       this.recipeForm.value['name'],
       this.recipeForm.value['description'],
-      this.recipeForm.value['imagePath'],
+      this.selectedFileBase64,
       this.recipeForm.value['ingredients']
     );
     if (this.editMode) {
