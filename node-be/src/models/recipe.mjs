@@ -40,9 +40,14 @@ const RecipeSchema = new mongoose.Schema({
                 }
             }
         }
-    ]
+    ],
+    owner: {
+        type: mongoose.Schema.Types.ObjectID,
+        required: true,
+        ref: 'User'
+    }
 });
 
-RecipeSchema.plugin(mongoose_fuzzy_searching,{fields: ['name']});
-const Recipe = mongoose.model('Recipe',RecipeSchema);
+RecipeSchema.plugin(mongoose_fuzzy_searching, {fields: ['name']});
+const Recipe = mongoose.model('Recipe', RecipeSchema);
 export {Recipe as default}

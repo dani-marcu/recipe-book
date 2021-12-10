@@ -88,6 +88,10 @@ export class RecipeService {
     this.recipes.next(recipes);
   }
 
+  clearRecipes() {
+    this.recipes.next([]);
+  }
+
   fetchRecipes(options = null) {
     let url = 'http://localhost:3005/api/recipes';
     if (options?.search) {

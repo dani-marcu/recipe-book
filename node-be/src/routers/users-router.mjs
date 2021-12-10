@@ -1,78 +1,69 @@
 import express from "express";
 import User from "../models/user.mjs";
 import {auth} from "../middleware/auth.mjs";
+import {decode} from "jsonwebtoken";
+import {UsersService} from "../service/users.service.mjs";
+
+const usersService = new UsersService();
 
 const usersRouter = new express.Router()
 
-usersRouter.post('/users',async(req,res) => {
-    const user = new User(req.body)
+usersRouter.post('/users', async (req, res) => {
     try {
-        await user.save()
-        const token = await user.generateAuthToken();
-        res.status(201).send({user,token});
+        const addedUser = await usersService.saveUser(req.body);
+        res.status(201).send(addedUser);
     } catch (error) {
         res.status(400).send(error);
     }
 })
 
-usersRouter.get('/users/me',auth,async(req,res)=>{
+usersRouter.get('/users/me', auth, async (req, res) => {
     res.send(req.user);
 })
 
-usersRouter.post('/users/logout',auth,async(req,res) => {
-    try{
-        req.user.tokens = req.user.tokens.filter((token) => {
-            return token.token !== req.token;
-        })
-        await req.user.save();
+usersRouter.post('/users/logout', auth, async (req, res) => {
+    try {
+        await usersService.logOut(req.user, req.token)
         res.send()
     } catch (error) {
         res.status(500).send()
     }
 })
 
-usersRouter.post('/users/logoutAll',auth,async(req,res) => {
-    try{
-        req.user.tokens = [];
-        await req.user.save();
+usersRouter.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        await usersService.logOutAll(req.user);
         res.send()
     } catch (error) {
         res.status(500).send()
     }
 })
 
-usersRouter.patch('/users/me',auth,async(req,res) => {
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['name','email','password','age']
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-    if (!isValidOperation){
-        return res.status(400).send({error: 'Invalid updates!'})
-    }
-    try{
-        updates.forEach((update) => req.user[update] = req.body[update]);
-        await req.user.save();
-        res.send(req.user)
-    }catch(error){
+usersRouter.patch('/users/me', auth, async (req, res) => {
+
+    try {
+        const updatedUser = await usersService.updateUser(req.body, req.user)
+        res.send(updatedUser)
+    } catch (error) {
         console.log(error)
         res.status(400).send(error)
     }
 })
 
-usersRouter.delete('/users/me',auth,async (req,res) => {
-    try{
+usersRouter.delete('/users/me', auth, async (req, res) => {
+    try {
         await req.user.remove();
         res.send(req.user)
-    }catch(error){
+    } catch (error) {
         res.status(500).send()
     }
 })
 
-usersRouter.post('/users/login',async (req,res) => {
+usersRouter.post('/users/login', async (req, res) => {
     try {
-        const user = await User.findByCredentials(req.body.email,req.body.password);
-        const token = await user.generateAuthToken();
-        res.send({user,token})
-    } catch(e){
+        const loggedInUser = await usersService.logIn(req.body);
+        res.send(loggedInUser)
+    } catch (e) {
         res.status(400).send();
     }
 })
