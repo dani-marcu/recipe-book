@@ -13,8 +13,8 @@ export class RecipeValidator{
         if( !recipe.description ){
             error += 'Recipe description must be included!'
         }
-        if ( !recipe.imagePath ){
-            error += 'Image path must be included!'
+        if ( !recipe.recipe ){
+            error += 'Image must be included!'
         }
         if ( !recipe.ingredients ){
             error += 'Ingredients must be included!'

@@ -36,7 +36,7 @@ export class RecipeService {
 
     updateRecipe(id, newRecipe) {
         const updates = Object.keys(newRecipe)
-        const allowedUpdates = ['name', 'description', 'imagePath', 'ingredients']
+        const allowedUpdates = ['name', 'description', 'image', 'ingredients']
         const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
         if (!isValidOperation) {
             throw new Error('Invalid updates!');
