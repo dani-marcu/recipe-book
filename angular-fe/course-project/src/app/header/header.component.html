@@ -9,6 +9,11 @@
         <li routerLinkActive="active"><a  routerLink="/recipes">Recipes</a></li>
         <li routerLinkActive="active"><a  routerLink="/shopping-list">Shopping List</a></li>
       </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li *ngIf="isAuthenticated">
+          <a style="cursor: pointer" (click)="onLogout()">Logout</a>
+        </li>
+      </ul>
     </div>
   </div>
 </nav>

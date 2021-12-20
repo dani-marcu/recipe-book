@@ -8,40 +8,52 @@ export class RecipeService {
         this.recipeValidator = new RecipeValidator()
     }
 
-    saveRecipe(recipeData) {
-        const recipe = new Recipe(recipeData);
+    saveRecipe(request) {
+        const recipe = new Recipe({
+            ...request.body,
+            owner: request.user._id
+        });
         return recipe.save();
     }
 
-    async getRecipes(query) {
-        if (query.search && query.minIngredients && query.maxIngredients && !isNaN(query.minIngredients) && !isNaN(query.maxIngredients)){
+    async getRecipes(query, user) {
+        const id = '"' + user._id + '"';
+        if (query.search && query.minIngredients && query.maxIngredients && !isNaN(query.minIngredients) && !isNaN(query.maxIngredients)) {
             return Recipe.find(
-                {$where: "this.ingredients.length >= " + query.minIngredients + " && this.ingredients.length <= " + query.maxIngredients}
+                {$where: "this.ingredients.length >= " + query.minIngredients + " && this.ingredients.length <= " + query.maxIngredients + " && this.owner == " + id}
             ).fuzzySearch(query.search);
         }
         if (query.search) {
-            return Recipe.fuzzySearch(query.search);
+            return Recipe.find(
+                {$where: "this.owner == " + id}).fuzzySearch(query.search);
         }
         if (query.minIngredients && query.maxIngredients && !isNaN(query.minIngredients) && !isNaN(query.maxIngredients)) {
             return Recipe.find(
-                {$where: "this.ingredients.length >= " + query.minIngredients + " && this.ingredients.length <= " + query.maxIngredients}
+                {$where: "this.owner == " + id + " && this.ingredients.length >= " + query.minIngredients + " && this.ingredients.length <= " + query.maxIngredients}
             )
         }
-        return Recipe.find({});
+        await user.populate('recipes').execPopulate();
+        return user.recipes;
     }
 
-    deleteRecipe(id) {
-        return Recipe.findByIdAndDelete(id);
+    async deleteRecipe(id, user) {
+        return Recipe.findOneAndDelete({_id: id, owner: user._id});
     }
 
-    updateRecipe(id, newRecipe) {
+    async updateRecipe(id, newRecipe, user) {
         const updates = Object.keys(newRecipe)
         const allowedUpdates = ['name', 'description', 'imagePath', 'ingredients']
         const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
         if (!isValidOperation) {
             throw new Error('Invalid updates!');
         } else {
-            return Recipe.findByIdAndUpdate(id, newRecipe, {new: true, runValidators: true})
+            const recipe = await Recipe.findOne({_id: id, owner: user._id});
+            if (!recipe){
+                throw new Error('This recipe does not exist!')
+            }
+            updates.forEach((update) => recipe[update] = newRecipe[update])
+            await recipe.save();
+            return recipe;
         }
     }
 }
