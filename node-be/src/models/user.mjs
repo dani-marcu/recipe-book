@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
-import jwt, {decode} from 'jsonwebtoken'
 import Recipe from "./recipe.mjs";
 
 const UserSchema = new mongoose.Schema({
@@ -29,8 +28,7 @@ const UserSchema = new mongoose.Schema({
     },
     tokens: [{
         token: {
-            type: String,
-            required: true
+            type: String
         }
     }]
 });
@@ -51,14 +49,6 @@ UserSchema.statics.findByCredentials = async (email, password) => {
         throw new Error('Unable to login!');
     }
     return user;
-}
-
-UserSchema.methods.generateAuthToken = async function () {
-    const user = this;
-    const token = jwt.sign({_id: user._id.toString()}, 'thisismysecret', {expiresIn: '1h'});
-    user.tokens = user.tokens.concat({token});
-    await user.save();
-    return token;
 }
 
 UserSchema.methods.toJSON = function () {

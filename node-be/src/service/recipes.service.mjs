@@ -49,7 +49,7 @@ export class RecipeService {
         } else {
             const recipe = await Recipe.findOne({_id: id, owner: user._id});
             if (!recipe){
-                return null;
+                throw new Error('This recipe does not exist!')
             }
             updates.forEach((update) => recipe[update] = newRecipe[update])
             await recipe.save();

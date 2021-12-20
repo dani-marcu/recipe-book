@@ -1,10 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User } from './user.model';
 import { RecipeService } from '../recipes/recipe.service';
+import jwt_decode from 'jwt-decode';
 
 export interface AuthResponseData {
   user: {
@@ -12,13 +13,16 @@ export interface AuthResponseData {
     _id: string;
   };
   token: string;
-  expiresIn: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  user = new BehaviorSubject<User>(null);
+  private connectedUser = new BehaviorSubject<User>(null);
   private tokenExpirationTimer: any;
+
+  get user() {
+    return this.connectedUser;
+  }
 
   constructor(
     private http: HttpClient,
@@ -26,27 +30,25 @@ export class AuthService {
     private recipeService: RecipeService
   ) {}
 
-  signup(email: string, password: string) {
+  signup(email: string, password: string): Observable<AuthResponseData> {
     return this.http
-      .post<AuthResponseData>('http://localhost:3005/users', {
+      .post<AuthResponseData>('http://localhost:3005/users/register', {
         email: email,
         password: password,
       })
       .pipe(
         catchError(this.handleError),
         tap((resData) => {
-          console.log(resData.expiresIn);
           this.handleAuthentication(
             resData.user.email,
             resData.user._id,
-            resData.token,
-            +resData.expiresIn
+            resData.token
           );
         })
       );
   }
 
-  login(email: string, password: string) {
+  login(email: string, password: string): Observable<AuthResponseData> {
     return this.http
       .post<AuthResponseData>('http://localhost:3005/users/login', {
         email: email,
@@ -58,11 +60,16 @@ export class AuthService {
           this.handleAuthentication(
             resData.user.email,
             resData.user._id,
-            resData.token,
-            +resData.expiresIn
+            resData.token
           );
         })
       );
+  }
+
+  validateTokenValability(expirationTimeMs: number) {
+    if (expirationTimeMs * 1000 - new Date().getTime() <= 0) {
+      return throwError('Token expired');
+    }
   }
 
   autoLogin() {
@@ -70,28 +77,33 @@ export class AuthService {
       email: string;
       id: string;
       _token: string;
-      _tokenExpirationDate;
     } = JSON.parse(localStorage.getItem('userData'));
     if (!userData) {
       return;
     }
-    const loadedUser = new User(
-      userData.email,
-      userData.id,
-      userData._token,
-      new Date(userData._tokenExpirationDate)
-    );
-    if (loadedUser.token) {
-      this.user.next(loadedUser);
+    const loadedUser = new User(userData.email, userData.id, userData._token);
+    try {
+      if (!userData._token) {
+        return throwError('Token missing');
+      }
+      const decodedToken: { _id: string; iat: number; exp: number } =
+        jwt_decode(userData._token);
+      this.validateTokenValability(decodedToken.exp);
+      this.connectedUser.next(loadedUser);
       const expirationDuration =
-        new Date(userData._tokenExpirationDate).getTime() -
-        new Date().getTime();
+        new Date(decodedToken.exp).getTime() * 1000 - new Date().getTime();
       this.autoLogout(expirationDuration);
+    } catch (error) {
+      throw error;
     }
   }
 
   logout() {
-    this.user.next(null);
+    this.http
+      .post<AuthResponseData>('http://localhost:3005/users/logout', {})
+      .pipe(catchError(this.handleError))
+      .subscribe();
+    this.connectedUser.next(null);
     this.router.navigate(['/auth']);
     localStorage.removeItem('userData');
     if (this.tokenExpirationTimer) {
@@ -107,35 +119,18 @@ export class AuthService {
     }, expirationDuration);
   }
 
-  private handleAuthentication(
-    email: string,
-    userId: string,
-    token: string,
-    expiresIn: number
-  ) {
-    const expirationDate = new Date(expiresIn * 1000);
-    const user = new User(email, userId, token, expirationDate);
-    this.user.next(user);
+  private handleAuthentication(email: string, userId: string, token: string) {
+    const decodedString: { _id: string; iat: number; exp: number } =
+      jwt_decode(token);
+    const expiresIn = decodedString.exp;
+    const user = new User(email, userId, token);
+    this.connectedUser.next(user);
     this.autoLogout(expiresIn * 1000 - new Date().getTime());
     localStorage.setItem('userData', JSON.stringify(user));
   }
 
   private handleError(errorResponse: HttpErrorResponse) {
     let errorMessage = 'An unknown error occured!';
-    if (!errorResponse.error || !errorResponse.error.error) {
-      return throwError(errorMessage);
-    }
-    switch (errorResponse.error.error.message) {
-      case 'EMAIL_EXISTS':
-        errorMessage = 'This email exists already!';
-        break;
-      case 'EMAIL_NOT_FOUND':
-        errorMessage = 'This email does not exist!';
-        break;
-      case 'INVALID_PASSWORD':
-        errorMessage = 'This password is not correct!';
-        break;
-    }
     return throwError(errorMessage);
   }
 }

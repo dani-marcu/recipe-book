@@ -1,14 +1,12 @@
 import express from "express";
-import User from "../models/user.mjs";
 import {auth} from "../middleware/auth.mjs";
-import {decode} from "jsonwebtoken";
 import {UsersService} from "../service/users.service.mjs";
 
 const usersService = new UsersService();
 
 const usersRouter = new express.Router()
 
-usersRouter.post('/users', async (req, res) => {
+usersRouter.post('/users/register', async (req, res) => {
     try {
         const addedUser = await usersService.saveUser(req.body);
         res.status(201).send(addedUser);
